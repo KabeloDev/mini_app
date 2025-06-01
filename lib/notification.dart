@@ -10,9 +10,9 @@ class AppNotification extends StatelessWidget {
       body: Center(
         child: MaterialButton(
           onPressed: () {
-            context.go('/');
+            context.go('/calendar');
           },
-          child: Text('Back home'),
+          child: Text('Calendar'),
         ),
       ),
     );

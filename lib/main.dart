@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mini_app/calendar.dart';
 import 'package:mini_app/home.dart';
 import 'package:mini_app/noti_service.dart';
 import 'package:mini_app/notification.dart';
@@ -23,6 +24,10 @@ final _router = GoRouter(
       ), GoRoute(
         path: '/notification',
         builder: (context, state) => const AppNotification()
+      ),
+      GoRoute(
+        path: '/calendar',
+        builder: (context, state) => const CalendarScreen()
       )
     ]
   );
