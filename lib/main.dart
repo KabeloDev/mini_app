@@ -20,14 +20,14 @@ final _router = GoRouter(
     routes: [
       GoRoute(
         path: '/',
-        builder: (context, state) => const HomePage(),
+        builder: (context, state) => const HomeScreen(),
       ), GoRoute(
         path: '/notification',
         builder: (context, state) => const AppNotification()
       ),
       GoRoute(
         path: '/calendar',
-        builder: (context, state) => const CalendarScreen()
+        builder: (context, state) => const CalendarScreen(moodEntries: [],)
       )
     ]
   );
