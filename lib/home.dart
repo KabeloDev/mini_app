@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mini_app/calendar.dart';
 import 'package:mini_app/moodentry.dart';
+import 'package:mini_app/stats_noti.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -49,9 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => CalendarScreen(moodEntries: _moods),
-      ),
+      MaterialPageRoute(builder: (_) => CalendarScreen(moodEntries: _moods)),
     );
   }
 
@@ -68,27 +67,31 @@ class _HomeScreenState extends State<HomeScreen> {
               Text('Select Mood:', style: TextStyle(fontSize: 16)),
               Wrap(
                 spacing: 10,
-                children: moods.entries.map((entry) {
-                  bool isSelected = _selectedMood == entry.key;
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedMood = entry.key),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: entry.value,
-                        borderRadius: BorderRadius.circular(12),
-                        border: isSelected
-                            ? Border.all(width: 3, color: Colors.black)
-                            : null,
-                      ),
-                      child: Text(
-                        entry.key,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                children:
+                    moods.entries.map((entry) {
+                      bool isSelected = _selectedMood == entry.key;
+                      return GestureDetector(
+                        onTap: () => setState(() => _selectedMood = entry.key),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: entry.value,
+                            borderRadius: BorderRadius.circular(12),
+                            border:
+                                isSelected
+                                    ? Border.all(width: 3, color: Colors.black)
+                                    : null,
+                          ),
+                          child: Text(
+                            entry.key,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      );
+                    }).toList(),
               ),
               TextField(
                 controller: _reasonController,
@@ -101,20 +104,35 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               DropdownButton<String>(
                 value: _selectedTime,
-                items: ['Morning', 'Afternoon', 'Evening']
-                    .map((time) => DropdownMenuItem(
-                          value: time,
-                          child: Text(time),
-                        ))
-                    .toList(),
+                items:
+                    ['Morning', 'Afternoon', 'Evening']
+                        .map(
+                          (time) =>
+                              DropdownMenuItem(value: time, child: Text(time)),
+                        )
+                        .toList(),
                 onChanged: (val) => setState(() => _selectedTime = val!),
               ),
               Center(
-                child: ElevatedButton(
-                  onPressed: _onSave,
-                  child: Text('Save Mood & View Calendar'),
+                child: Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: _onSave,
+                      child: Text('Save Mood & View Calendar'),
+                    ),
+                    const SizedBox(height: 20),
+                    MaterialButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => MyPieChart(moodEntries: _moods,)),
+                        );
+                      },
+                      child: Text('Stats'),
+                    ),
+                  ],
                 ),
-              )
+              ),
             ],
           ),
         ),
