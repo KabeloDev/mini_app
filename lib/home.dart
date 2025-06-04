@@ -18,14 +18,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<MoodEntry> _moods = [];
 
-  final Map<String, Color> moods = {
-    'Happy': Colors.yellow,
-    'Sad': Colors.blue,
-    'Angry': Colors.red,
-    'Calm': Colors.green,
-    'Anxious': Colors.purple,
-  };
-
   void _onSave() {
     if (_selectedMood == null ||
         _reasonController.text.isEmpty ||
@@ -67,32 +59,100 @@ class _HomeScreenState extends State<HomeScreen> {
               Text('Select Mood:', style: TextStyle(fontSize: 16)),
               Wrap(
                 spacing: 10,
-                children:
-                    moods.entries.map((entry) {
-                      bool isSelected = _selectedMood == entry.key;
-                      return GestureDetector(
-                        onTap: () => setState(() => _selectedMood = entry.key),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 10,
-                            horizontal: 14,
-                          ),
-                          decoration: BoxDecoration(
-                            color: entry.value,
-                            borderRadius: BorderRadius.circular(12),
-                            border:
-                                isSelected
-                                    ? Border.all(width: 3, color: Colors.black)
-                                    : null,
-                          ),
-                          child: Text(
-                            entry.key,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      );
-                    }).toList(),
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedMood = 'Happy'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.yellow,
+                        borderRadius: BorderRadius.circular(12),
+                        border: _selectedMood == 'Happy'
+                            ? Border.all(width: 3, color: Colors.black)
+                            : null,
+                      ),
+                      child: Text(
+                        'Happy',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedMood = 'Sad'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(12),
+                        border: _selectedMood == 'Sad'
+                            ? Border.all(width: 3, color: Colors.black)
+                            : null,
+                      ),
+                      child: Text(
+                        'Sad',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedMood = 'Angry'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(12),
+                        border: _selectedMood == 'Angry'
+                            ? Border.all(width: 3, color: Colors.black)
+                            : null,
+                      ),
+                      child: Text(
+                        'Angry',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedMood = 'Calm'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(12),
+                        border: _selectedMood == 'Calm'
+                            ? Border.all(width: 3, color: Colors.black)
+                            : null,
+                      ),
+                      child: Text(
+                        'Calm',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => setState(() => _selectedMood = 'Anxious'),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 14),
+                      decoration: BoxDecoration(
+                        color: Colors.purple,
+                        borderRadius: BorderRadius.circular(12),
+                        border: _selectedMood == 'Anxious'
+                            ? Border.all(width: 3, color: Colors.black)
+                            : null,
+                      ),
+                      child: Text(
+                        'Anxious',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+              SizedBox(height: 16),
               TextField(
                 controller: _reasonController,
                 decoration: InputDecoration(labelText: 'Reason'),
@@ -102,15 +162,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 maxLines: 3,
                 decoration: InputDecoration(labelText: 'Description'),
               ),
+              SizedBox(height: 10),
               DropdownButton<String>(
                 value: _selectedTime,
-                items:
-                    ['Morning', 'Afternoon', 'Evening']
-                        .map(
-                          (time) =>
-                              DropdownMenuItem(value: time, child: Text(time)),
-                        )
-                        .toList(),
+                items: ['Morning', 'Afternoon', 'Evening']
+                    .map(
+                      (time) => DropdownMenuItem(
+                        value: time,
+                        child: Text(time),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (val) => setState(() => _selectedTime = val!),
               ),
               Center(
@@ -125,7 +187,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => MyPieChart(moodEntries: _moods,)),
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                MyPieChart(moodEntries: _moods),
+                          ),
                         );
                       },
                       child: Text('Stats'),
