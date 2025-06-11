@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mini_app/calendar_cubit.dart';
 import 'package:mini_app/home.dart';
 import 'package:mini_app/noti_service.dart';
 
@@ -11,7 +13,12 @@ void main() {
   NotiService().initNotification().then((_) {
     NotiService().showNotification(0, 'Welcome', 'Rememeber to track your mood today.');
   });
-  runApp(const MyApp());
+  runApp(
+    BlocProvider(
+      create: (_) => CalendarCubit(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 final _router = GoRouter(
