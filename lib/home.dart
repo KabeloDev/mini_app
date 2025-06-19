@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_app/calendar.dart';
+import 'package:mini_app/home_cubit.dart';
 import 'package:mini_app/moodentry.dart';
 import 'package:mini_app/stats_noti.dart';
 
@@ -16,19 +18,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final _reasonController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  final List<MoodEntry> _moods = [];
-
   void _onSave() {
     if (_selectedMood == null ||
         _reasonController.text.isEmpty ||
         _descriptionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please fill all fields and select a mood')),
+        const SnackBar(content: Text('Please fill all fields and select a mood')),
       );
       return;
     }
 
-    final moodEntry = MoodEntry(
+    final newMood = MoodEntry(
       mood: _selectedMood!,
       reason: _reasonController.text,
       description: _descriptionController.text,
@@ -36,164 +36,77 @@ class _HomeScreenState extends State<HomeScreen> {
       date: DateTime.now(),
     );
 
-    setState(() {
-      _moods.add(moodEntry);
-    });
+    context.read<HomeCubit>().addMood(newMood);
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => CalendarScreen(moodEntries: _moods)),
-    );
+    _reasonController.clear();
+    _descriptionController.clear();
+    setState(() {
+      _selectedMood = null;
+      _selectedTime = 'Morning';
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Mood')),
+      appBar: AppBar(title: const Text('Add Mood')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Select Mood:', style: TextStyle(fontSize: 16)),
-              Wrap(
-                spacing: 10,
-                children: [
-                  GestureDetector(
-                    onTap: () => setState(() => _selectedMood = 'Happy'),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.yellow,
-                        borderRadius: BorderRadius.circular(12),
-                        border: _selectedMood == 'Happy'
-                            ? Border.all(width: 3, color: Colors.black)
-                            : null,
-                      ),
-                      child: Text(
-                        'Happy',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => _selectedMood = 'Sad'),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(12),
-                        border: _selectedMood == 'Sad'
-                            ? Border.all(width: 3, color: Colors.black)
-                            : null,
-                      ),
-                      child: Text(
-                        'Sad',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => _selectedMood = 'Angry'),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(12),
-                        border: _selectedMood == 'Angry'
-                            ? Border.all(width: 3, color: Colors.black)
-                            : null,
-                      ),
-                      child: Text(
-                        'Angry',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => _selectedMood = 'Calm'),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(12),
-                        border: _selectedMood == 'Calm'
-                            ? Border.all(width: 3, color: Colors.black)
-                            : null,
-                      ),
-                      child: Text(
-                        'Calm',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => setState(() => _selectedMood = 'Anxious'),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.purple,
-                        borderRadius: BorderRadius.circular(12),
-                        border: _selectedMood == 'Anxious'
-                            ? Border.all(width: 3, color: Colors.black)
-                            : null,
-                      ),
-                      child: Text(
-                        'Anxious',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 16),
+              const Text('Select Mood:', style: TextStyle(fontSize: 16)),
+              const SizedBox(height: 10),
+              _buildMoodSelector(),
+              const SizedBox(height: 16),
               TextField(
                 controller: _reasonController,
-                decoration: InputDecoration(labelText: 'Reason'),
+                decoration: const InputDecoration(labelText: 'Reason'),
               ),
               TextField(
                 controller: _descriptionController,
                 maxLines: 3,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(labelText: 'Description'),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               DropdownButton<String>(
                 value: _selectedTime,
                 items: ['Morning', 'Afternoon', 'Evening']
-                    .map(
-                      (time) => DropdownMenuItem(
-                        value: time,
-                        child: Text(time),
-                      ),
-                    )
+                    .map((time) => DropdownMenuItem(value: time, child: Text(time)))
                     .toList(),
                 onChanged: (val) => setState(() => _selectedTime = val!),
               ),
+              const SizedBox(height: 20),
               Center(
                 child: Column(
                   children: [
                     ElevatedButton(
                       onPressed: _onSave,
-                      child: Text('Save Mood & View Calendar'),
+                      child: const Text('Save Mood'),
                     ),
                     const SizedBox(height: 20),
-                    MaterialButton(
+                    ElevatedButton(
                       onPressed: () {
                         Navigator.push(
                           context,
+                          MaterialPageRoute(builder: (_) => const CalendarScreen()),
+                        );
+                      },
+                      child: const Text('View Calendar'),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        final moods = context.read<HomeCubit>().state;
+                        Navigator.push(
+                          context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                MyPieChart(moodEntries: _moods),
+                            builder: (_) => MyPieChart(moodEntries: moods),
                           ),
                         );
                       },
-                      child: Text('Stats'),
+                      child: const Text('Stats'),
                     ),
                   ],
                 ),
@@ -202,6 +115,36 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMoodSelector() {
+    final moods = {
+      'Happy': Colors.yellow,
+      'Sad': Colors.blue,
+      'Angry': Colors.red,
+      'Calm': Colors.green,
+      'Anxious': Colors.purple,
+    };
+
+    return Wrap(
+      spacing: 10,
+      children: moods.entries.map((entry) {
+        return GestureDetector(
+          onTap: () => setState(() => _selectedMood = entry.key),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+            decoration: BoxDecoration(
+              color: entry.value,
+              borderRadius: BorderRadius.circular(12),
+              border: _selectedMood == entry.key
+                  ? Border.all(width: 3, color: Colors.black)
+                  : null,
+            ),
+            child: Text(entry.key, style: const TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        );
+      }).toList(),
     );
   }
 }

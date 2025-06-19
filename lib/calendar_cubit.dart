@@ -1,18 +1,32 @@
-// calendar_cubit.dart
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mini_app/moodentry.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'moodentry.dart';
 
-class CalendarCubit extends Cubit<MoodEntry> {
-  CalendarCubit()
-      : super(MoodEntry(
-          reason: '',
-          description: '',
-          mood: '',
-          date: DateTime.now(),
-          timeOfDay: '0',
-        ));
+class CalendarCubit extends HydratedCubit<List<MoodEntry>> {
+  CalendarCubit() : super([]);
 
-  void updateMoodEntry(MoodEntry entry) {
-    emit(entry);
+  /// Sync moods from HomeCubit - call this when navigating to calendar.
+  void setMoods(List<MoodEntry> homeMoods) {
+    emit(homeMoods);
+  }
+
+  void updateMood(MoodEntry updatedMood) {
+    final updatedList = state.map((mood) {
+      if (mood.date == updatedMood.date && mood.timeOfDay == updatedMood.timeOfDay) {
+        return updatedMood;
+      }
+      return mood;
+    }).toList();
+    emit(updatedList);
+  }
+
+  @override
+  List<MoodEntry> fromJson(Map<String, dynamic> json) {
+    final rawList = json['moods'] as List<dynamic>;
+    return rawList.map((item) => MoodEntry.fromMap(item)).toList();
+  }
+
+  @override
+  Map<String, dynamic> toJson(List<MoodEntry> state) {
+    return {'moods': state.map((m) => m.toMap()).toList()};
   }
 }

@@ -1,19 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_app/calendar_cubit.dart';
+import 'package:mini_app/home_cubit.dart';
 import 'package:mini_app/moodentry.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class CalendarScreen extends StatelessWidget {
-  final List<MoodEntry> moodEntries;
+class CalendarScreen extends StatefulWidget {
+  const CalendarScreen({super.key});
 
-  const CalendarScreen({super.key, required this.moodEntries});
+  @override
+  State<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends State<CalendarScreen> {
+  late DateTime focusedDay;
+  late DateTime selectedDay;
+
+  @override
+  void initState() {
+    super.initState();
+    focusedDay = DateTime.now();
+    selectedDay = focusedDay;
+
+    final moods = context.read<HomeCubit>().state;
+    context.read<CalendarCubit>().setMoods(moods);
+  }
 
   @override
   Widget build(BuildContext context) {
-    DateTime focusedDay = DateTime.now();
-    DateTime selectedDay = focusedDay;
-
     return Scaffold(
       appBar: AppBar(title: const Text('Mood Calendar')),
       body: Column(
@@ -24,35 +38,37 @@ class CalendarScreen extends StatelessWidget {
             focusedDay: focusedDay,
             selectedDayPredicate: (day) => isSameDay(selectedDay, day),
             onDaySelected: (selDay, focDay) {
-              selectedDay = selDay;
+              setState(() {
+                selectedDay = selDay;
+                focusedDay = focDay;
+              });
             },
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: ListView.builder(
-              itemCount: moodEntries.length,
-              itemBuilder: (context, index) {
-                final mood = moodEntries[index];
+            child: BlocBuilder<CalendarCubit, List<MoodEntry>>(
+              builder: (context, moods) {
+                final dayMoods = moods.where((m) => isSameDay(m.date, selectedDay)).toList();
 
-                return BlocBuilder<CalendarCubit, MoodEntry>(
-                  
-                  builder: (context, state) {
-                    final moodSelected = (state.date == mood.date &&
-                            state.timeOfDay == mood.timeOfDay)
-                        ? state
-                        : mood;
+                if (dayMoods.isEmpty) {
+                  return const Center(child: Text('No moods recorded for this day.'));
+                }
+
+                return ListView.builder(
+                  itemCount: dayMoods.length,
+                  itemBuilder: (context, index) {
+                    final mood = dayMoods[index];
 
                     return Card(
-                      margin:
-                          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       child: ListTile(
-                        onTap: () => _editMoodEntry(context, moodSelected),
-                        title: Text('${moodSelected.mood} - ${moodSelected.timeOfDay}'),
+                        onTap: () => _editMoodEntry(context, mood),
+                        title: Text('${mood.mood} - ${mood.timeOfDay}'),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Reason: ${moodSelected.reason}'),
-                            Text('Description: ${moodSelected.description}'),
+                            Text('Reason: ${mood.reason}'),
+                            Text('Description: ${mood.description}'),
                           ],
                         ),
                       ),
@@ -68,11 +84,12 @@ class CalendarScreen extends StatelessWidget {
   }
 
   void _editMoodEntry(BuildContext context, MoodEntry mood) async {
-    final reasonController = TextEditingController();
-    final descriptionController = TextEditingController();
+    final reasonController = TextEditingController(text: mood.reason);
+    final descriptionController = TextEditingController(text: mood.description);
 
     final updatedMood = await showModalBottomSheet<MoodEntry>(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
@@ -123,7 +140,7 @@ class CalendarScreen extends StatelessWidget {
     );
 
     if (updatedMood != null) {
-      context.read<CalendarCubit>().updateMoodEntry(updatedMood);
+      context.read<CalendarCubit>().updateMood(updatedMood);
     }
   }
 }
