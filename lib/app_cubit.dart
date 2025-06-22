@@ -3,16 +3,27 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'moodentry.dart';
 
-class HomeCubit extends Cubit<List<MoodEntry>> {
+class AppCubit extends Cubit<List<MoodEntry>> {
   static const _storageKey = 'mood_entries';
 
-  HomeCubit() : super([]) {
+  AppCubit() : super([]) {
     _loadMoods();
   }
 
   Future<void> addMood(MoodEntry newMood) async {
     final updatedList = List<MoodEntry>.from(state);
     updatedList.add(newMood);
+    emit(updatedList);
+    await _saveMoods(updatedList);
+  }
+
+  Future<void> updateMood(MoodEntry updatedMood) async {
+    final updatedList = state.map((mood) {
+      if (mood.date == updatedMood.date && mood.timeOfDay == updatedMood.timeOfDay) {
+        return updatedMood;
+      }
+      return mood;
+    }).toList();
     emit(updatedList);
     await _saveMoods(updatedList);
   }

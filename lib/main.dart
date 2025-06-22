@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mini_app/calendar_cubit.dart';
 import 'package:mini_app/home.dart';
-import 'package:mini_app/home_cubit.dart';
+import 'package:mini_app/app_cubit.dart';
 import 'package:mini_app/noti_service.dart';
 
 void main() async{
@@ -17,10 +16,7 @@ void main() async{
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => CalendarCubit(),
-        ),
-        BlocProvider(
-          create: (_) => HomeCubit(),
+          create: (_) => AppCubit(),
         ),
       ],
       child: const MyApp(),

@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_app/calendar.dart';
-import 'package:mini_app/home_cubit.dart';
+import 'package:mini_app/app_cubit.dart';
 import 'package:mini_app/moodentry.dart';
 import 'package:mini_app/stats_noti.dart';
 
@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     log('🟢 New mood created: ${newMood.toJson()}');
 
-    context.read<HomeCubit>().addMood(newMood);
+    context.read<AppCubit>().addMood(newMood);
 
     _reasonController.clear();
     _descriptionController.clear();
@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
-                        final moods = context.read<HomeCubit>().state;
+                        final moods = context.read<AppCubit>().state;
                         Navigator.push(
                           context,
                           MaterialPageRoute(

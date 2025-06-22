@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mini_app/calendar_cubit.dart';
+import 'package:mini_app/app_cubit.dart';
 import 'package:mini_app/moodentry.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -44,9 +44,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: BlocBuilder<CalendarCubit, List<MoodEntry>>(
+            child: BlocBuilder<AppCubit, List<MoodEntry>>(
               builder: (context, moods) {
-                context.read<CalendarCubit>();
+                context.read<AppCubit>().state;
                 final dayMoods = moods.where((m) => isSameDay(m.date, selectedDay)).toList();
 
                 if (dayMoods.isEmpty) {
@@ -141,7 +141,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
 
     if (updatedMood != null) {
-      context.read<CalendarCubit>().updateMood(updatedMood);
+      context.read<AppCubit>().updateMood(updatedMood);
     }
   }
 }
