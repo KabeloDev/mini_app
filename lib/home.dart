@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_app/calendar.dart';
@@ -35,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
       timeOfDay: _selectedTime,
       date: DateTime.now(),
     );
+
+    log('🟢 New mood created: ${newMood.toJson()}');
 
     context.read<HomeCubit>().addMood(newMood);
 

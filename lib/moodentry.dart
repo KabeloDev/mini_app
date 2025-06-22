@@ -13,7 +13,7 @@ class MoodEntry {
     required this.timeOfDay,
   });
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
       'mood': mood,
       'date': date.toIso8601String(),
@@ -23,13 +23,13 @@ class MoodEntry {
     };
   }
 
-  factory MoodEntry.fromMap(Map<String, dynamic> map) {
+  factory MoodEntry.fromJson(Map<String, dynamic> json) {
     return MoodEntry(
-      mood: map['mood'],
-      date: DateTime.parse(map['date']),
-      reason: map['reason'],
-      description: map['description'],
-      timeOfDay: map['timeOfDay'],
+      mood: json['mood'],
+      date: DateTime.parse(json['date']),
+      reason: json['reason'],
+      description: json['description'],
+      timeOfDay: json['timeOfDay'],
     );
   }
 }

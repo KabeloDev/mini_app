@@ -1,7 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_app/calendar_cubit.dart';
-import 'package:mini_app/home_cubit.dart';
 import 'package:mini_app/moodentry.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -21,9 +22,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     super.initState();
     focusedDay = DateTime.now();
     selectedDay = focusedDay;
-
-    final moods = context.read<HomeCubit>().state;
-    context.read<CalendarCubit>().setMoods(moods);
   }
 
   @override
@@ -48,11 +46,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
           Expanded(
             child: BlocBuilder<CalendarCubit, List<MoodEntry>>(
               builder: (context, moods) {
+                context.read<CalendarCubit>();
                 final dayMoods = moods.where((m) => isSameDay(m.date, selectedDay)).toList();
 
                 if (dayMoods.isEmpty) {
                   return const Center(child: Text('No moods recorded for this day.'));
                 }
+
+                log('Day moods: ${dayMoods.length}');
 
                 return ListView.builder(
                   itemCount: dayMoods.length,

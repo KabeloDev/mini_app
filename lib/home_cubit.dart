@@ -1,23 +1,36 @@
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'dart:convert';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'moodentry.dart';
 
-class HomeCubit extends HydratedCubit<List<MoodEntry>> {
-  HomeCubit() : super([]);
+class HomeCubit extends Cubit<List<MoodEntry>> {
+  static const _storageKey = 'mood_entries';
 
-  void addMood(MoodEntry newMood) {
+  HomeCubit() : super([]) {
+    _loadMoods();
+  }
+
+  Future<void> addMood(MoodEntry newMood) async {
     final updatedList = List<MoodEntry>.from(state);
     updatedList.add(newMood);
     emit(updatedList);
+    await _saveMoods(updatedList);
   }
 
-  @override
-  List<MoodEntry> fromJson(Map<String, dynamic> json) {
-    final rawList = json['moods'] as List<dynamic>;
-    return rawList.map((item) => MoodEntry.fromMap(item)).toList();
+  Future<void> _saveMoods(List<MoodEntry> moods) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonList = moods.map((mood) => jsonEncode(mood.toJson())).toList();
+    await prefs.setStringList(_storageKey, jsonList);
   }
 
-  @override
-  Map<String, dynamic> toJson(List<MoodEntry> state) {
-    return {'moods': state.map((m) => m.toMap()).toList()};
+  Future<void> _loadMoods() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonList = prefs.getStringList(_storageKey);
+    if (jsonList != null) {
+      final moodList = jsonList
+          .map((moodStr) => MoodEntry.fromJson(jsonDecode(moodStr)))
+          .toList();
+      emit(moodList);
+    }
   }
 }

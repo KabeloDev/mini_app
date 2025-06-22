@@ -1,15 +1,22 @@
-import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'dart:convert';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'moodentry.dart';
 
-class CalendarCubit extends HydratedCubit<List<MoodEntry>> {
-  CalendarCubit() : super([]);
+class CalendarCubit extends Cubit<List<MoodEntry>> {
+  static const _calendarStorageKey = 'calendar_moods';
 
-  /// Sync moods from HomeCubit - call this when navigating to calendar.
-  void setMoods(List<MoodEntry> homeMoods) {
-    emit(homeMoods);
+  CalendarCubit() : super([]) {
+    _loadMoods();
   }
 
-  void updateMood(MoodEntry updatedMood) {
+  Future<void> setMoods(List<MoodEntry> homeMoods) async {
+    emit(homeMoods);
+    await _saveMoods(homeMoods);
+  }
+
+  Future<void> updateMood(MoodEntry updatedMood) async {
     final updatedList = state.map((mood) {
       if (mood.date == updatedMood.date && mood.timeOfDay == updatedMood.timeOfDay) {
         return updatedMood;
@@ -17,16 +24,23 @@ class CalendarCubit extends HydratedCubit<List<MoodEntry>> {
       return mood;
     }).toList();
     emit(updatedList);
+    await _saveMoods(updatedList);
   }
 
-  @override
-  List<MoodEntry> fromJson(Map<String, dynamic> json) {
-    final rawList = json['moods'] as List<dynamic>;
-    return rawList.map((item) => MoodEntry.fromMap(item)).toList();
+  Future<void> _saveMoods(List<MoodEntry> moods) async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonList = moods.map((m) => jsonEncode(m.toJson())).toList();
+    await prefs.setStringList(_calendarStorageKey, jsonList);
   }
 
-  @override
-  Map<String, dynamic> toJson(List<MoodEntry> state) {
-    return {'moods': state.map((m) => m.toMap()).toList()};
+  Future<void> _loadMoods() async {
+    final prefs = await SharedPreferences.getInstance();
+    final jsonList = prefs.getStringList(_calendarStorageKey);
+    if (jsonList != null) {
+      final moodList = jsonList
+          .map((jsonStr) => MoodEntry.fromJson(jsonDecode(jsonStr)))
+          .toList();
+      emit(moodList);
+    }
   }
 }
