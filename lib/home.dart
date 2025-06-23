@@ -1,13 +1,14 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_app/calendar.dart';
 import 'package:mini_app/app_cubit.dart';
+import 'package:mini_app/mode.dart';
 import 'package:mini_app/moodentry.dart';
 import 'package:mini_app/noti_service.dart';
 import 'package:mini_app/notifications_cubit.dart';
 import 'package:mini_app/stats_noti.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -54,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final modeController = Provider.of<ModeController>(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Add Mood')),
       body: Padding(
@@ -136,6 +138,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           textAlign: TextAlign.center,
                         ),
                       ),
+                    ),
+                    SizedBox(height: 20,),
+                    ElevatedButton(
+                      onPressed: () {
+                        
+                        modeController.toggleMode();
+                      },
+                      child: const Icon(Icons.dark_mode),
                     ),
                   ],
                 ),

@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mini_app/home.dart';
 import 'package:mini_app/app_cubit.dart';
+import 'package:mini_app/mode.dart';
 import 'package:mini_app/noti_service.dart';
 import 'package:mini_app/notifications_cubit.dart';
+import 'package:provider/provider.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,13 +16,10 @@ void main() async{
   });
 
   runApp(
-    MultiBlocProvider(
+    MultiProvider(
       providers: [
-        BlocProvider(
-          create: (_) => AppCubit(),
-        ),
-        BlocProvider(
-          create: (_) => NotificationsCubit(),
+        ChangeNotifierProvider(
+          create: (_) => ModeController(),
         ),
       ],
       child: const MyApp(),
@@ -48,17 +47,31 @@ final _router = GoRouter(
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+  
   
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+    final modeController = Provider.of<ModeController>(context);
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => AppCubit(),
+        ),
+        BlocProvider(
+          create: (_) => NotificationsCubit(),
+        ),
+      ],
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          brightness : modeController.isDarkMode ? Brightness.dark : Brightness.light,
+        ),
+        routerConfig: _router,
       ),
-      routerConfig: _router,
     );
   }
 }
