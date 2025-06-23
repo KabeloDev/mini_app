@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mini_app/calendar.dart';
 import 'package:mini_app/app_cubit.dart';
 import 'package:mini_app/moodentry.dart';
+import 'package:mini_app/noti_service.dart';
+import 'package:mini_app/notifications_cubit.dart';
 import 'package:mini_app/stats_noti.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -86,7 +88,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   children: [
                     ElevatedButton(
-                      onPressed: _onSave,
+                      onPressed: (){
+                        _onSave();
+                        NotiService().showNotification(
+                          0,
+                          'Mood Saved',
+                          'Your mood has been saved successfully.',
+                        );
+                        context.read<NotificationsCubit>().addNotification('Your mood has been saved successfully.');
+                      },
                       child: const Text('Save Mood'),
                     ),
                     const SizedBox(height: 20),
@@ -102,15 +112,30 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: () {
-                        final moods = context.read<AppCubit>().state;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => MyPieChart(moodEntries: moods),
+                            builder: (_) => MyPieChart(moodEntries: context.read<AppCubit>().state,),
                           ),
                         );
                       },
                       child: const Text('Stats'),
+                    ),
+                    SizedBox(height: 20),
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${context.watch<NotificationsCubit>().state.length}',
+                          style: const TextStyle(color: Colors.white, fontSize: 20),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     ),
                   ],
                 ),

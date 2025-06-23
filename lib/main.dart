@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mini_app/home.dart';
 import 'package:mini_app/app_cubit.dart';
 import 'package:mini_app/noti_service.dart';
+import 'package:mini_app/notifications_cubit.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,9 @@ void main() async{
       providers: [
         BlocProvider(
           create: (_) => AppCubit(),
+        ),
+        BlocProvider(
+          create: (_) => NotificationsCubit(),
         ),
       ],
       child: const MyApp(),
